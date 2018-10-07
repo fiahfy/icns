@@ -14,5 +14,5 @@ import Icns from '@fiahfy/icns'
 
 const buf = fs.readFileSync('input.icns')
 const icns = new Icns(buf)
-console.log(icns.iconImages.length) // 8
+console.log(icns.iconImages.length) // 10
 ```
