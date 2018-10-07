@@ -1,0 +1,56 @@
+{
+  "name": "@fiahfy/icns",
+  "description": "Apple Icon Image format parser and builder",
+  "version": "0.0.1",
+  "author": {
+    "name": "fiahfy",
+    "email": "d.fiahfy@gmail.com",
+    "url": "http://fiahfy.blogspot.com/"
+  },
+  "bugs": {
+    "url": "https://github.com/fiahfy/icns/issues"
+  },
+  "dependencies": {
+    "@fiahfy/packbits": "^0.0.2",
+    "jimp": "^0.5.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "babel-core": "^7.0.0-0",
+    "babel-jest": "^23.4.2",
+    "eslint": "^5.5.0",
+    "eslint-config-prettier": "^3.1.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "jest": "^23.5.0",
+    "prettier": "^1.14.3",
+    "rollup": "^0.66.2",
+    "rollup-plugin-babel": "^4.0.3"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/fiahfy/icns",
+  "keywords": [
+    "builder",
+    "icns",
+    "parser"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fiahfy/icns.git"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "lint": "eslint -f codeframe --ignore-path .gitignore .",
+    "prepare": "npm run test && npm run build",
+    "test": "npm run lint && jest"
+  }
+}
