@@ -6,13 +6,11 @@ export default {
   output: [
     {
       file: pkg.main,
-      format: 'cjs',
-      exports: 'named'
+      format: 'cjs'
     },
     {
       file: pkg.module,
-      format: 'esm',
-      exports: 'named'
+      format: 'esm'
     }
   ],
   external: ['@fiahfy/packbits', 'jimp'],
