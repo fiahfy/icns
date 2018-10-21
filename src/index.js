@@ -57,7 +57,7 @@ class IcnsImage {
       }
     }
     const list = [...a, ...r, ...g, ...b]
-    const totalLength = list.reduce((carry, buf) => carry + buf.length, 0)
+    const totalLength = list.reduce((carry, buffer) => carry + buffer.length, 0)
     const data = encode(Buffer.concat(list, totalLength), { icns: true })
 
     const header = Buffer.alloc(4)
