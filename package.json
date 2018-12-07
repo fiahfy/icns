@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@fiahfy/packbits": "^0.0.2",
-    "jimp": "^0.5.0"
+    "jimp": "^0.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
@@ -24,7 +24,7 @@
     "eslint-plugin-prettier": "^3.0.0",
     "jest": "^23.5.0",
     "prettier": "^1.14.3",
-    "rollup": "^0.66.2",
+    "rollup": "^0.67.4",
     "rollup-plugin-babel": "^4.0.3"
   },
   "engines": {

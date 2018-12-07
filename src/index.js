@@ -1,4 +1,3 @@
-import { encode } from '@fiahfy/packbits'
 import Jimp from 'jimp'
 
 class IcnsFileHeader {
@@ -38,34 +37,8 @@ class IcnsImage {
     this.bytes = buffer.readUInt32BE(4)
     this.image = buffer.slice(8, this.bytes)
   }
-  static _createARGBData(bitmap) {
-    const a = []
-    const r = []
-    const g = []
-    const b = []
-    for (let y = 0; y < bitmap.height; y++) {
-      for (let x = 0; x < bitmap.width; x++) {
-        const pos = (y * bitmap.width + x) * bitmap.bpp
-        const red = bitmap.data.slice(pos, pos + 1)
-        const green = bitmap.data.slice(pos + 1, pos + 2)
-        const blue = bitmap.data.slice(pos + 2, pos + 3)
-        const alpha = bitmap.data.slice(pos + 3, pos + 4)
-        a.push(alpha)
-        r.push(red)
-        g.push(green)
-        b.push(blue)
-      }
-    }
-    const list = [...a, ...r, ...g, ...b]
-    const totalLength = list.reduce((carry, buffer) => carry + buffer.length, 0)
-    const data = encode(Buffer.concat(list, totalLength), { icns: true })
-
-    const header = Buffer.alloc(4)
-    header.write('ARGB', 0, 4, 'ascii')
-    return Buffer.concat([header, data], 4 + data.length)
-  }
-  static create(bitmap, osType, format, buffer) {
-    const image = format === 'PNG' ? buffer : IcnsImage._createARGBData(bitmap)
+  static create(osType, buffer) {
+    const image = buffer
     const bytes = 8 + image.length
     return new IcnsImage({ osType, bytes, image })
   }
@@ -81,8 +54,6 @@ export default class Icns {
   }
   static get supportedTypes() {
     return [
-      { osType: 'ic04', size: 16, format: 'ARGB' },
-      { osType: 'ic05', size: 32, format: 'ARGB' },
       { osType: 'ic07', size: 128, format: 'PNG' },
       { osType: 'ic08', size: 256, format: 'PNG' },
       { osType: 'ic09', size: 512, format: 'PNG' },
@@ -147,12 +118,7 @@ export default class Icns {
       )
     }
 
-    this.images[index] = IcnsImage.create(
-      image.bitmap,
-      osType,
-      type.format,
-      buffer
-    )
+    this.images[index] = IcnsImage.create(osType, buffer)
 
     this._resetHeader()
   }
