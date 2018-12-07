@@ -591,11 +591,6 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@fiahfy/packbits@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@fiahfy/packbits/-/packbits-0.0.2.tgz#9a7533cffe7f80825b72ac6dcb814cd281ba67d3"
-  integrity sha512-1GjYfhJXyB3B9Z2nEut8Z3zaKJm4ElloEfeYn6OgZdLLeUkTXlHw10ln2weKQdRnV1eMn5GLeI84CJodAhh7Vg==
-
 "@jimp/bmp@^0.6.0":
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/@jimp/bmp/-/bmp-0.6.0.tgz#6eb3ad441ed3f1418a32a89a4244285914b2a15c"
