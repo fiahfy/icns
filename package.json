@@ -1,7 +1,7 @@
 {
   "name": "@fiahfy/icns",
   "description": "Apple Icon Image format parser and builder",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": {
     "name": "fiahfy",
     "email": "d.fiahfy@gmail.com",
