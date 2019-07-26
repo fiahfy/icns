@@ -5,25 +5,26 @@
   "author": {
     "name": "fiahfy",
     "email": "d.fiahfy@gmail.com",
-    "url": "http://fiahfy.blogspot.com/"
+    "url": "https://fiahfy.github.io/"
   },
   "bugs": {
     "url": "https://github.com/fiahfy/icns/issues"
   },
   "dependencies": {
+    "@fiahfy/packbits": "^0.0.3",
     "jimp": "^0.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "babel-core": "^7.0.0-0",
-    "babel-jest": "^23.4.2",
-    "eslint": "^5.5.0",
-    "eslint-config-prettier": "^3.1.0",
+    "babel-jest": "^24.8.0",
+    "eslint": "^6.1.0",
+    "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-prettier": "^3.0.0",
-    "jest": "^23.5.0",
+    "jest": "^24.8.0",
     "prettier": "^1.14.3",
-    "rollup": "^0.67.4",
+    "rollup": "^1.17.0",
     "rollup-plugin-babel": "^4.0.3"
   },
   "engines": {

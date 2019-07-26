@@ -1,4 +1,5 @@
 import Jimp from 'jimp'
+import { encode } from '@fiahfy/packbits'
 
 class IcnsFileHeader {
   constructor({ identifier = 'icns', bytes = 0 } = {}) {
@@ -28,17 +29,54 @@ class IcnsImage {
     buffer.write(this.osType, 0, 4, 'ascii')
     buffer.writeUInt32BE(this.bytes, 4)
 
-    const list = [buffer, this.image]
-    const totalLength = list.reduce((carry, buffer) => carry + buffer.length, 0)
-    return Buffer.concat(list, totalLength)
+    return Buffer.concat([buffer, this.image])
   }
   set data(buffer) {
     this.osType = buffer.toString('ascii', 0, 4)
     this.bytes = buffer.readUInt32BE(4)
     this.image = buffer.slice(8, this.bytes)
   }
-  static create(osType, buffer) {
-    const image = buffer
+  static _createARGBData(bitmap) {
+    const alphaBufs = []
+    const redBufs = []
+    const greenBufs = []
+    const blueBufs = []
+    for (let y = 0; y < bitmap.height; y++) {
+      for (let x = 0; x < bitmap.width; x++) {
+        const pos = (y * bitmap.width + x) * bitmap.bpp
+        const red = bitmap.data.slice(pos, pos + 1)
+        const green = bitmap.data.slice(pos + 1, pos + 2)
+        const blue = bitmap.data.slice(pos + 2, pos + 3)
+        const alpha = bitmap.data.slice(pos + 3, pos + 4)
+        alphaBufs.push(alpha)
+        redBufs.push(red)
+        greenBufs.push(green)
+        blueBufs.push(blue)
+      }
+    }
+
+    const encodedAlpha = encode(Buffer.concat(alphaBufs), { format: 'icns' })
+    const encodedRed = encode(Buffer.concat(redBufs), { format: 'icns' })
+    const encodedGreen = encode(Buffer.concat(greenBufs), { format: 'icns' })
+    const encodedBlue = encode(Buffer.concat(blueBufs), { format: 'icns' })
+
+    const data = Buffer.concat([
+      encodedAlpha,
+      encodedRed,
+      encodedGreen,
+      encodedBlue
+    ])
+
+    const header = Buffer.alloc(4)
+    header.write('ARGB', 0, 4, 'ascii')
+
+    return Buffer.concat([header, data])
+  }
+  static create(osType, format, buffer, bitmap) {
+    if (!['PNG', 'ARGB'].includes(format)) {
+      throw new TypeError('Invalid format')
+    }
+    const image = format === 'PNG' ? buffer : IcnsImage._createARGBData(bitmap)
     const bytes = 8 + image.length
     return new IcnsImage({ osType, bytes, image })
   }
@@ -54,6 +92,8 @@ export default class Icns {
   }
   static get supportedTypes() {
     return [
+      { osType: 'ic04', size: 16, format: 'ARGB' },
+      { osType: 'ic05', size: 32, format: 'ARGB' },
       { osType: 'ic07', size: 128, format: 'PNG' },
       { osType: 'ic08', size: 256, format: 'PNG' },
       { osType: 'ic09', size: 512, format: 'PNG' },
@@ -71,12 +111,11 @@ export default class Icns {
       .sort((a, b) => (a > b ? 1 : -1))
   }
   get data() {
-    const list = [
+    const buffers = [
       this.fileHeader.data,
       ...this.images.map((image) => image.data)
     ]
-    const totalLength = list.reduce((carry, buffer) => carry + buffer.length, 0)
-    return Buffer.concat(list, totalLength)
+    return Buffer.concat(buffers)
   }
   set data(buffer) {
     this.fileHeader.data = buffer
@@ -118,7 +157,12 @@ export default class Icns {
       )
     }
 
-    this.images[index] = IcnsImage.create(osType, buffer)
+    this.images[index] = IcnsImage.create(
+      osType,
+      type.format,
+      buffer,
+      image.bitmap
+    )
 
     this._resetHeader()
   }
