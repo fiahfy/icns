@@ -1,28 +1,32 @@
 # icns
 
+![badge](https://github.com/fiahfy/icns/workflows/Node.js%20Package/badge.svg)
+
 > [Apple Icon Image format](https://en.wikipedia.org/wiki/Apple_Icon_Image_format) parser and builder.
 
-
 ## Installation
-```
+
+```bash
 npm install @fiahfy/icns
 ```
-
 
 ## Usage
 
 ### Parsing
+
 ```js
 import fs from 'fs'
 import Icns from '@fiahfy/icns'
 
 const buf = fs.readFileSync('icon.icns')
 const icns = new Icns(buf)
-const imagesAsBuffers = icns.images.map(icon => icon.image)
+const imagesAsBuffers = icns.images.map((icon) => icon.image)
 ```
+
 Note that the images may be encoded in different file formats, in accordance with [Apple's _icon type_ specifications](https://en.wikipedia.org/wiki/Apple_Icon_Image_format#Icon_types).
 
 ### Building
+
 ```js
 import fs from 'fs'
 import Icns from '@fiahfy/icns'
@@ -43,12 +47,12 @@ await icns.appendImage(buf, osType)
 fs.writeFileSync('icon.icns', icns.data)
 ```
 
-
 ## Specifications
 
 ### Supported OSTypes
+
 | OSType | OS Version | Size | Description                                                           |
-|--------|------------|------|-----------------------------------------------------------------------|
+| ------ | ---------- | ---- | --------------------------------------------------------------------- |
 | ic04   |            | 16   | 16x16 ARGB                                                            |
 | ic05   |            | 32   | 32x32 ARGB                                                            |
 | ic07   | 10.7       | 128  | 128x128 icon in PNG format                                            |

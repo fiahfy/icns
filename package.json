@@ -11,21 +11,21 @@
     "url": "https://github.com/fiahfy/icns/issues"
   },
   "dependencies": {
-    "@fiahfy/packbits": "^0.0.3",
-    "jimp": "^0.6.0"
+    "@fiahfy/packbits": "^0.0.4",
+    "jimp": "^0.8.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "babel-core": "^7.0.0-0",
-    "babel-jest": "^24.8.0",
-    "eslint": "^6.1.0",
-    "eslint-config-prettier": "^6.0.0",
-    "eslint-plugin-prettier": "^3.0.0",
-    "jest": "^24.8.0",
-    "prettier": "^1.14.3",
-    "rollup": "^1.17.0",
-    "rollup-plugin-babel": "^4.0.3"
+    "@types/jest": "^24.0.22",
+    "@types/node": "^12.12.7",
+    "@typescript-eslint/eslint-plugin": "^2.6.1",
+    "@typescript-eslint/parser": "^2.6.1",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "jest": "^24.9.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^24.1.0",
+    "typescript": "^3.7.2"
   },
   "engines": {
     "node": ">=8"
@@ -41,7 +41,6 @@
   ],
   "license": "MIT",
   "main": "dist/index.js",
-  "module": "dist/index.esm.js",
   "publishConfig": {
     "access": "public"
   },
@@ -50,10 +49,11 @@
     "url": "git+https://github.com/fiahfy/icns.git"
   },
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "lint": "eslint -f codeframe --ignore-path .gitignore .",
+    "build": "tsc",
+    "dev": "tsc -w",
+    "lint": "eslint -f codeframe --ext .ts --ignore-path .gitignore .",
     "prepare": "npm run test && npm run build",
     "test": "npm run lint && jest"
-  }
+  },
+  "types": "dist/index.d.js"
 }

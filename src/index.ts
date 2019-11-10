@@ -1,12 +1,14 @@
-import Jimp from 'jimp'
+import Jimp, { Bitmap } from 'jimp'
 import { encode } from '@fiahfy/packbits'
 
-class IcnsFileHeader {
-  constructor({ identifier = 'icns', bytes = 0 } = {}) {
+export class IcnsFileHeader {
+  identifier: string
+  bytes: number
+  constructor(identifier = 'icns', bytes = 0) {
     this.identifier = identifier
     this.bytes = bytes
   }
-  get data() {
+  get data(): Buffer {
     const buffer = Buffer.alloc(8)
     buffer.write(this.identifier, 0, 4, 'ascii')
     buffer.writeUInt32BE(this.bytes, 4)
@@ -18,17 +20,19 @@ class IcnsFileHeader {
   }
 }
 
-class IcnsImage {
-  constructor({ osType = '', bytes = 0, image = null } = {}) {
+export class IcnsImage {
+  osType: string
+  bytes: number
+  image: Buffer
+  constructor(osType = '', bytes = 0, image = Buffer.alloc(0)) {
     this.osType = osType
     this.bytes = bytes
     this.image = image
   }
-  get data() {
+  get data(): Buffer {
     const buffer = Buffer.alloc(8)
     buffer.write(this.osType, 0, 4, 'ascii')
     buffer.writeUInt32BE(this.bytes, 4)
-
     return Buffer.concat([buffer, this.image])
   }
   set data(buffer) {
@@ -36,14 +40,14 @@ class IcnsImage {
     this.bytes = buffer.readUInt32BE(4)
     this.image = buffer.slice(8, this.bytes)
   }
-  static _createARGBData(bitmap) {
+  private static createARGBData(bitmap: Bitmap): Buffer {
     const alphaBufs = []
     const redBufs = []
     const greenBufs = []
     const blueBufs = []
     for (let y = 0; y < bitmap.height; y++) {
       for (let x = 0; x < bitmap.width; x++) {
-        const pos = (y * bitmap.width + x) * bitmap.bpp
+        const pos = (y * bitmap.width + x) * 1 // (bitmap as any).bpp
         const red = bitmap.data.slice(pos, pos + 1)
         const green = bitmap.data.slice(pos + 1, pos + 2)
         const blue = bitmap.data.slice(pos + 2, pos + 3)
@@ -72,25 +76,36 @@ class IcnsImage {
 
     return Buffer.concat([header, data])
   }
-  static create(osType, format, buffer, bitmap) {
+  static create(
+    osType: string,
+    format: string,
+    buffer: Buffer,
+    bitmap: Bitmap
+  ): IcnsImage {
     if (!['PNG', 'ARGB'].includes(format)) {
       throw new TypeError('Invalid format')
     }
-    const image = format === 'PNG' ? buffer : IcnsImage._createARGBData(bitmap)
+    const image = format === 'PNG' ? buffer : IcnsImage.createARGBData(bitmap)
     const bytes = 8 + image.length
-    return new IcnsImage({ osType, bytes, image })
+    return new IcnsImage(osType, bytes, image)
   }
 }
 
 export default class Icns {
-  constructor(buffer) {
+  fileHeader: IcnsFileHeader
+  images: IcnsImage[]
+  constructor(buffer?: Buffer) {
     this.fileHeader = new IcnsFileHeader()
     this.images = []
     if (buffer) {
       this.data = buffer
     }
   }
-  static get supportedTypes() {
+  static get supportedTypes(): Array<{
+    osType: string
+    size: number
+    format: string
+  }> {
     return [
       { osType: 'ic04', size: 16, format: 'ARGB' },
       { osType: 'ic05', size: 32, format: 'ARGB' },
@@ -104,13 +119,13 @@ export default class Icns {
       { osType: 'ic14', size: 512, format: 'PNG' }
     ]
   }
-  static get supportedSizes() {
+  static get supportedSizes(): number[] {
     return Icns.supportedTypes
       .map((type) => type.size)
       .filter((x, i, self) => self.indexOf(x) === i)
       .sort((a, b) => (a > b ? 1 : -1))
   }
-  get data() {
+  get data(): Buffer {
     const buffers = [
       this.fileHeader.data,
       ...this.images.map((image) => image.data)
@@ -130,15 +145,19 @@ export default class Icns {
     }
     this.images = images
   }
-  _resetHeader() {
+  private resetHeader(): void {
     this.fileHeader.bytes =
       this.fileHeader.data.length +
       this.images.reduce((carry, image) => carry + image.bytes, 0)
   }
-  async appendImage(buffer, osType) {
+  async appendImage(buffer: Buffer, osType: string): Promise<void> {
     await this.insertImage(buffer, osType, this.images.length)
   }
-  async insertImage(buffer, osType, index) {
+  async insertImage(
+    buffer: Buffer,
+    osType: string,
+    index: number
+  ): Promise<void> {
     const image = await Jimp.read(buffer)
     if (image.getMIME() !== Jimp.MIME_PNG) {
       throw new TypeError('Image must be png format')
@@ -164,11 +183,11 @@ export default class Icns {
       image.bitmap
     )
 
-    this._resetHeader()
+    this.resetHeader()
   }
-  removeImage(index) {
+  removeImage(index: number): void {
     this.images.splice(index, 1)
 
-    this._resetHeader()
+    this.resetHeader()
   }
 }

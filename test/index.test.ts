@@ -25,13 +25,23 @@ describe('icns', () => {
   })
 
   describe('appendImage', () => {
-    test('should work', async () => {
+    test('should work for PNG', async () => {
       const buf = fs.readFileSync('./test/1024x1024.png')
       const icns = new Icns()
       expect(icns.images.length).toBe(0)
       await icns.appendImage(buf, 'ic10')
       expect(icns.images.length).toBe(1)
       await icns.appendImage(buf, 'ic10')
+      expect(icns.images.length).toBe(2)
+    })
+
+    test('should work for ARGB', async () => {
+      const buf = fs.readFileSync('./test/16x16.png')
+      const icns = new Icns()
+      expect(icns.images.length).toBe(0)
+      await icns.appendImage(buf, 'ic04')
+      expect(icns.images.length).toBe(1)
+      await icns.appendImage(buf, 'ic04')
       expect(icns.images.length).toBe(2)
     })
 
