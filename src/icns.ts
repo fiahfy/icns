@@ -9,6 +9,10 @@ interface IconType {
 
 export class Icns {
   static readonly supportedIconTypes = [
+    { osType: 'is32', size: 16, format: 'RGB' },
+    { osType: 's8mk', size: 16, format: 'MASK' },
+    { osType: 'il32', size: 32, format: 'RGB' },
+    { osType: 'l8mk', size: 32, format: 'MASK' },
     { osType: 'ic04', size: 16, format: 'ARGB' },
     { osType: 'ic05', size: 32, format: 'ARGB' },
     { osType: 'ic07', size: 128, format: 'PNG' },
@@ -64,16 +68,12 @@ export class Icns {
     this.images = images
   }
 
-  async appendImage(buffer: Buffer, osType: string): Promise<void> {
-    await this.insertImage(buffer, osType, this.images.length)
+  appendImage(buffer: Buffer, osType: string): void {
+    this.insertImage(buffer, osType, this.images.length)
   }
 
-  async insertImage(
-    buffer: Buffer,
-    osType: string,
-    index: number
-  ): Promise<void> {
-    this.images[index] = await IcnsImage.create(buffer, osType)
+  insertImage(buffer: Buffer, osType: string, index: number): void {
+    this.images[index] = IcnsImage.create(buffer, osType)
   }
 
   removeImage(index: number): void {

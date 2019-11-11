@@ -1,4 +1,4 @@
-import Jimp, { Bitmap } from 'jimp'
+import { PNG } from 'pngjs'
 import { encode } from '@fiahfy/packbits'
 import { Icns } from './icns'
 
@@ -36,7 +36,7 @@ export class IcnsImage {
     this.image = buffer.slice(8, this.bytes)
   }
 
-  static async create(buffer: Buffer, osType: string): Promise<IcnsImage> {
+  static create(buffer: Buffer, osType: string): IcnsImage {
     const iconType = Icns.supportedIconTypes.find(
       (iconType) => iconType.osType === osType
     )
@@ -44,14 +44,13 @@ export class IcnsImage {
       throw new TypeError('No supported osType')
     }
 
-    const image = await Jimp.read(buffer)
-    const mime = image.getMIME()
-    const width = image.getWidth()
-    const height = image.getHeight()
-    const bitmap = image.bitmap
-    if (mime !== Jimp.MIME_PNG) {
+    const png = IcnsImage.readPNG(buffer)
+    if (!png) {
       throw new TypeError('Image must be png format')
     }
+
+    const width = png.width
+    const height = png.height
     if (width !== height) {
       throw new TypeError('Image must be squre')
     }
@@ -62,45 +61,62 @@ export class IcnsImage {
     }
 
     const icnsImage = new IcnsImage(osType)
-    icnsImage.image =
-      iconType.format === 'PNG' ? buffer : IcnsImage.createARGBData(bitmap)
+    icnsImage.image = IcnsImage.getImage(png, iconType.format) || buffer
     return icnsImage
   }
 
-  private static createARGBData(bitmap: Bitmap): Buffer {
-    const alphaBufs = []
-    const redBufs = []
-    const greenBufs = []
-    const blueBufs = []
-    for (let y = 0; y < bitmap.height; y++) {
-      for (let x = 0; x < bitmap.width; x++) {
-        const pos = (y * bitmap.width + x) * (bitmap as any).bpp
-        const red = bitmap.data.slice(pos, pos + 1)
-        const green = bitmap.data.slice(pos + 1, pos + 2)
-        const blue = bitmap.data.slice(pos + 2, pos + 3)
-        const alpha = bitmap.data.slice(pos + 3, pos + 4)
-        alphaBufs.push(alpha)
-        redBufs.push(red)
-        greenBufs.push(green)
-        blueBufs.push(blue)
-      }
+  private static readPNG(buffer: Buffer): PNG | undefined {
+    try {
+      return PNG.sync.read(buffer)
+    } catch (e) {
+      return undefined
     }
+  }
 
-    const encodedAlpha = encode(Buffer.concat(alphaBufs), { format: 'icns' })
-    const encodedRed = encode(Buffer.concat(redBufs), { format: 'icns' })
-    const encodedGreen = encode(Buffer.concat(greenBufs), { format: 'icns' })
-    const encodedBlue = encode(Buffer.concat(blueBufs), { format: 'icns' })
+  private static getImage(png: PNG, format: string): Buffer | undefined {
+    switch (format) {
+      case 'MASK':
+        return IcnsImage.getMask(png)
+      case 'RGB':
+        return IcnsImage.getRGB(png)
+      case 'ARGB':
+        return IcnsImage.getARGB(png)
+      case 'PNG':
+      default:
+        return undefined
+    }
+  }
 
-    const data = Buffer.concat([
-      encodedAlpha,
-      encodedRed,
-      encodedGreen,
-      encodedBlue
+  private static getMask(png: PNG): Buffer {
+    return IcnsImage.getChannel(png, 3)
+  }
+
+  private static getRGB(png: PNG): Buffer {
+    return Buffer.concat([
+      encode(IcnsImage.getChannel(png, 0), { format: 'icns' }),
+      encode(IcnsImage.getChannel(png, 1), { format: 'icns' }),
+      encode(IcnsImage.getChannel(png, 2), { format: 'icns' })
     ])
+  }
 
+  private static getARGB(png: PNG): Buffer {
     const header = Buffer.alloc(4)
     header.write('ARGB', 0, 4, 'ascii')
 
-    return Buffer.concat([header, data])
+    return Buffer.concat([
+      header,
+      encode(IcnsImage.getChannel(png, 3), { format: 'icns' }),
+      encode(IcnsImage.getChannel(png, 0), { format: 'icns' }),
+      encode(IcnsImage.getChannel(png, 1), { format: 'icns' }),
+      encode(IcnsImage.getChannel(png, 2), { format: 'icns' })
+    ])
+  }
+
+  private static getChannel(png: PNG, index: number): Buffer {
+    const data = []
+    for (let i = 0; i < png.data.length; i += 4) {
+      data.push(png.data.slice(index + i, index + i + 1))
+    }
+    return Buffer.concat(data)
   }
 }
