@@ -1,26 +1,72 @@
-import { Bitmap } from 'jimp'
+import Jimp, { Bitmap } from 'jimp'
 import { encode } from '@fiahfy/packbits'
+import { Icns } from './icns'
 
 export class IcnsImage {
   osType: string
   bytes: number
-  image: Buffer
-  constructor(osType = '', bytes = 0, image = Buffer.alloc(0)) {
+  private _image: Buffer
+
+  constructor(osType = '', bytes = 8, image = Buffer.alloc(0)) {
     this.osType = osType
     this.bytes = bytes
-    this.image = image
+    this._image = image
   }
+
+  get image(): Buffer {
+    return this._image
+  }
+
+  set image(image) {
+    this._image = image
+
+    this.bytes = 8 + image.length
+  }
+
   get data(): Buffer {
     const buffer = Buffer.alloc(8)
     buffer.write(this.osType, 0, 4, 'ascii')
     buffer.writeUInt32BE(this.bytes, 4)
     return Buffer.concat([buffer, this.image])
   }
+
   set data(buffer) {
     this.osType = buffer.toString('ascii', 0, 4)
     this.bytes = buffer.readUInt32BE(4)
     this.image = buffer.slice(8, this.bytes)
   }
+
+  static async create(buffer: Buffer, osType: string): Promise<IcnsImage> {
+    const iconType = Icns.supportedIconTypes.find(
+      (iconType) => iconType.osType === osType
+    )
+    if (!iconType) {
+      throw new TypeError('No supported osType')
+    }
+
+    const image = await Jimp.read(buffer)
+    const mime = image.getMIME()
+    const width = image.getWidth()
+    const height = image.getHeight()
+    const bitmap = image.bitmap
+    if (mime !== Jimp.MIME_PNG) {
+      throw new TypeError('Image must be png format')
+    }
+    if (width !== height) {
+      throw new TypeError('Image must be squre')
+    }
+    if (width !== iconType.size) {
+      throw new TypeError(
+        `Image size must be ${iconType.size}x${iconType.size} for '${osType}'`
+      )
+    }
+
+    const icnsImage = new IcnsImage(osType)
+    icnsImage.image =
+      iconType.format === 'PNG' ? buffer : IcnsImage.createARGBData(bitmap)
+    return icnsImage
+  }
+
   private static createARGBData(bitmap: Bitmap): Buffer {
     const alphaBufs = []
     const redBufs = []
@@ -56,18 +102,5 @@ export class IcnsImage {
     header.write('ARGB', 0, 4, 'ascii')
 
     return Buffer.concat([header, data])
-  }
-  static create(
-    osType: string,
-    format: string,
-    buffer: Buffer,
-    bitmap: Bitmap
-  ): IcnsImage {
-    if (!['PNG', 'ARGB'].includes(format)) {
-      throw new TypeError('Invalid format')
-    }
-    const image = format === 'PNG' ? buffer : IcnsImage.createARGBData(bitmap)
-    const bytes = 8 + image.length
-    return new IcnsImage(osType, bytes, image)
   }
 }
