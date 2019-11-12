@@ -1,12 +1,6 @@
 import { IcnsFileHeader } from './icns-file-header'
 import { IcnsImage } from './icns-image'
 
-interface IconType {
-  osType: string
-  size: number
-  format: string
-}
-
 export class Icns {
   static readonly supportedIconTypes = [
     { osType: 'is32', size: 16, format: 'RGB' },
@@ -25,13 +19,18 @@ export class Icns {
     { osType: 'ic14', size: 512, format: 'PNG' }
   ]
 
-  fileHeader = new IcnsFileHeader()
-  private _images: IcnsImage[] = []
+  fileHeader: IcnsFileHeader
+  private _images: IcnsImage[]
 
-  constructor(buffer?: Buffer) {
-    if (buffer) {
-      this.data = buffer
-    }
+  constructor(fileHeader = new IcnsFileHeader(), images = []) {
+    this.fileHeader = fileHeader
+    this._images = images
+  }
+
+  static create(buffer: Buffer): Icns {
+    const icns = new Icns()
+    icns.data = buffer
+    return icns
   }
 
   get images(): IcnsImage[] {
@@ -68,15 +67,45 @@ export class Icns {
     this.images = images
   }
 
-  appendImage(buffer: Buffer, osType: string): void {
-    this.insertImage(buffer, osType, this.images.length)
+  /**
+   * Adds ICNS image at the end.
+   * @param image The ICNS Image to append.
+   */
+  appendImage(image: IcnsImage): void {
+    this.images = [...this.images, image]
   }
 
-  insertImage(buffer: Buffer, osType: string, index: number): void {
-    this.images[index] = IcnsImage.create(buffer, osType)
+  /**
+   * Inserts ICNS image at the specified position.
+   * @param image The ICNS Image to insert.
+   * @param index The position at which to insert the ICNS Image.
+   */
+  insertImage(image: IcnsImage, index: number): void {
+    this.images = [
+      ...this.images.slice(0, index),
+      image,
+      ...this.images.slice(index)
+    ]
   }
 
+  /**
+   * Removes ICNS image at the specified position.
+   * @param index The position of the ICNS Image to remove.
+   */
   removeImage(index: number): void {
-    this.images.splice(index, 1)
+    this.images = [
+      ...this.images.slice(0, index),
+      ...this.images.slice(index + 1)
+    ]
+  }
+
+  appendPNG(buffer: Buffer, osType: string): void {
+    const image = IcnsImage.createFromPNG(buffer, osType)
+    this.appendImage(image)
+  }
+
+  insertPNG(buffer: Buffer, osType: string, index: number): void {
+    const image = IcnsImage.createFromPNG(buffer, osType)
+    this.insertImage(image, index)
   }
 }

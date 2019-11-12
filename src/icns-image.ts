@@ -13,30 +13,13 @@ export class IcnsImage {
     this._image = image
   }
 
-  get image(): Buffer {
-    return this._image
+  static create(buffer: Buffer): IcnsImage {
+    const image = new IcnsImage()
+    image.data = buffer
+    return image
   }
 
-  set image(image) {
-    this._image = image
-
-    this.bytes = 8 + image.length
-  }
-
-  get data(): Buffer {
-    const buffer = Buffer.alloc(8)
-    buffer.write(this.osType, 0, 4, 'ascii')
-    buffer.writeUInt32BE(this.bytes, 4)
-    return Buffer.concat([buffer, this.image])
-  }
-
-  set data(buffer) {
-    this.osType = buffer.toString('ascii', 0, 4)
-    this.bytes = buffer.readUInt32BE(4)
-    this.image = buffer.slice(8, this.bytes)
-  }
-
-  static create(buffer: Buffer, osType: string): IcnsImage {
+  static createFromPNG(buffer: Buffer, osType: string): IcnsImage {
     const iconType = Icns.supportedIconTypes.find(
       (iconType) => iconType.osType === osType
     )
@@ -63,6 +46,29 @@ export class IcnsImage {
     const icnsImage = new IcnsImage(osType)
     icnsImage.image = IcnsImage.getImage(png, iconType.format) || buffer
     return icnsImage
+  }
+
+  get image(): Buffer {
+    return this._image
+  }
+
+  set image(image) {
+    this._image = image
+
+    this.bytes = 8 + image.length
+  }
+
+  get data(): Buffer {
+    const buffer = Buffer.alloc(8)
+    buffer.write(this.osType, 0, 4, 'ascii')
+    buffer.writeUInt32BE(this.bytes, 4)
+    return Buffer.concat([buffer, this.image])
+  }
+
+  set data(buffer) {
+    this.osType = buffer.toString('ascii', 0, 4)
+    this.bytes = buffer.readUInt32BE(4)
+    this.image = buffer.slice(8, this.bytes)
   }
 
   private static readPNG(buffer: Buffer): PNG | undefined {
