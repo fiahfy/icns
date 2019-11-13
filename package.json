@@ -11,15 +11,15 @@
     "url": "https://github.com/fiahfy/icns/issues"
   },
   "dependencies": {
-    "@fiahfy/packbits": "^0.0.4",
+    "@fiahfy/packbits": "^0.0.5",
     "pngjs": "^3.4.0"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.22",
+    "@types/jest": "^24.0.23",
     "@types/node": "^12.12.7",
-    "@types/pngjs": "^3.3.2",
-    "@typescript-eslint/eslint-plugin": "^2.6.1",
-    "@typescript-eslint/parser": "^2.6.1",
+    "@types/pngjs": "^3.4.0",
+    "@typescript-eslint/eslint-plugin": "^2.7.0",
+    "@typescript-eslint/parser": "^2.7.0",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.5.0",
     "eslint-plugin-prettier": "^3.1.1",
@@ -27,9 +27,6 @@
     "prettier": "^1.19.1",
     "ts-jest": "^24.1.0",
     "typescript": "^3.7.2"
-  },
-  "engines": {
-    "node": ">=8"
   },
   "files": [
     "dist"
