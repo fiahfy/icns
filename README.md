@@ -16,10 +16,10 @@ npm install @fiahfy/icns
 
 ```js
 import fs from 'fs'
-import Icns from '@fiahfy/icns'
+import { Icns } from '@fiahfy/icns'
 
 const buf = fs.readFileSync('icon.icns')
-const icns = new Icns(buf)
+const icns = Icns.from(buf)
 const imagesAsBuffers = icns.images.map((icon) => icon.image)
 ```
 
@@ -29,18 +29,18 @@ Note that the images may be encoded in different file formats, in accordance wit
 
 ```js
 import fs from 'fs'
-import Icns from '@fiahfy/icns'
+import { Icns, IcnsImage } from '@fiahfy/icns'
 
 const icns = new Icns()
-let buf, osType
+let buf, image
 
 buf = fs.readFileSync('512x512.png')
-osType = 'ic09'
-await icns.appendImage(buf, osType)
+image = IcnsImage.fromPNG(buf, 'ic09')
+icns.append(image)
 
 buf = fs.readFileSync('1024x1024.png')
-osType = 'ic10'
-await icns.appendImage(buf, osType)
+image = IcnsImage.fromPNG(buf, 'ic10')
+icns.append(image)
 
 /* Some other PNG files */
 
@@ -53,6 +53,10 @@ fs.writeFileSync('icon.icns', icns.data)
 
 | OSType | OS Version | Size | Description                                                           |
 | ------ | ---------- | ---- | --------------------------------------------------------------------- |
+| is32   | 8.5        | 16   | 16×16 24-bit icon                                                     |
+| s8mk   | 8.5        | 16   | 16x16 8-bit mask                                                      |
+| il32   | 8.5        | 32   | 32x32 24-bit icon                                                     |
+| l8mk   | 8.5        | 32   | 32×32 8-bit mask                                                      |
 | ic04   |            | 16   | 16x16 ARGB                                                            |
 | ic05   |            | 32   | 32x32 ARGB                                                            |
 | ic07   | 10.7       | 128  | 128x128 icon in PNG format                                            |
