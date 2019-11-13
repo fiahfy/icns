@@ -1,7 +1,6 @@
 import { IcnsFileHeader } from './icns-file-header'
 import { IcnsImage } from './icns-image'
 import { OSType, Format } from './types'
-import { file } from '@babel/types'
 
 export class Icns {
   static readonly supportedIconTypes: {
@@ -33,6 +32,10 @@ export class Icns {
     this._images = images
   }
 
+  /**
+   * Create ICNS from the icon buffer.
+   * @param buffer The ICNS icon buffer.
+   */
   static from(buffer: Buffer): Icns {
     const fileHeader = IcnsFileHeader.from(buffer)
 

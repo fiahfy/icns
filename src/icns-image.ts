@@ -68,6 +68,10 @@ export class IcnsImage {
     this.image = image
   }
 
+  /**
+   * Create ICNS image from the buffer.
+   * @param buffer The ICNS image buffer.
+   */
   static from(buffer: Buffer): IcnsImage {
     const osType = buffer.toString('ascii', 0, 4) as OSType
     const bytes = buffer.readUInt32BE(4)
@@ -75,6 +79,11 @@ export class IcnsImage {
     return new IcnsImage(osType, bytes, image)
   }
 
+  /**
+   * Create ICNS Image from the PNG image buffer.
+   * @param buffer The PNG image buffer.
+   * @param osType The icon OSType.
+   */
   static fromPNG(buffer: Buffer, osType: OSType): IcnsImage {
     const iconType = Icns.supportedIconTypes.find(
       (iconType) => iconType.osType === osType

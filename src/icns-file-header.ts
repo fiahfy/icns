@@ -7,6 +7,10 @@ export class IcnsFileHeader {
     this.bytes = bytes
   }
 
+  /**
+   * Create ICNS file header from the buffer.
+   * @param buffer The ICNS file header buffer.
+   */
   static from(buffer: Buffer): IcnsFileHeader {
     const identifier = buffer.toString('ascii', 0, 4) as 'icns'
     const bytes = buffer.readUInt32BE(4)
