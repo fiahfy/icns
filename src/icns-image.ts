@@ -22,11 +22,11 @@ class Bitmap {
     }
   }
 
-  get mask(): Buffer {
+  private get mask(): Buffer {
     return this.getChannel(3)
   }
 
-  get rgb(): Buffer {
+  private get rgb(): Buffer {
     return Buffer.concat([
       encode(this.getChannel(0), { format: 'icns' }),
       encode(this.getChannel(1), { format: 'icns' }),
@@ -34,7 +34,7 @@ class Bitmap {
     ])
   }
 
-  get argb(): Buffer {
+  private get argb(): Buffer {
     const header = Buffer.alloc(4)
     header.write('ARGB', 0, 4, 'ascii')
 
@@ -98,7 +98,7 @@ export class IcnsImage {
     }
 
     const image =
-      iconType.format === 'png'
+      iconType.format === 'PNG'
         ? buffer
         : new Bitmap(png).format(iconType.format)
     if (!image) {
