@@ -1,15 +1,16 @@
 import { PNG } from 'pngjs'
 import { encode } from '@fiahfy/packbits'
 import { Icns } from './icns'
+import { OSType, Format } from './types'
 
-class Bitmap {
+export class Bitmap {
   readonly png: PNG
 
   constructor(png: PNG) {
     this.png = png
   }
 
-  format(format: string): Buffer | undefined {
+  format(format: Format): Buffer | undefined {
     switch (format) {
       case 'MASK':
         return this.mask
@@ -57,23 +58,24 @@ class Bitmap {
 }
 
 export class IcnsImage {
-  osType: string
-  private _bytes: number
-  private _image: Buffer
+  readonly osType: OSType
+  readonly bytes: number
+  readonly image: Buffer
 
-  constructor(osType = '', bytes = 8, image = Buffer.alloc(0)) {
+  constructor(osType: OSType = '', bytes = 8, image = Buffer.alloc(0)) {
     this.osType = osType
-    this._bytes = bytes
-    this._image = image
+    this.bytes = bytes
+    this.image = image
   }
 
   static from(buffer: Buffer): IcnsImage {
-    const image = new IcnsImage()
-    image.data = buffer
-    return image
+    const osType = buffer.toString('ascii', 0, 4) as OSType
+    const bytes = buffer.readUInt32BE(4)
+    const image = buffer.slice(8, bytes)
+    return new IcnsImage(osType, bytes, image)
   }
 
-  static fromPNG(buffer: Buffer, osType: string): IcnsImage {
+  static fromPNG(buffer: Buffer, osType: OSType): IcnsImage {
     const iconType = Icns.supportedIconTypes.find(
       (iconType) => iconType.osType === osType
     )
@@ -105,23 +107,9 @@ export class IcnsImage {
       throw new TypeError(`Invalid format '${iconType.format}'`)
     }
 
-    const icnsImage = new IcnsImage(osType)
-    icnsImage.image = image
-    return icnsImage
-  }
+    const bytes = 8 + image.length
 
-  get bytes(): number {
-    return this._bytes
-  }
-
-  get image(): Buffer {
-    return this._image
-  }
-
-  set image(image) {
-    this._image = image
-
-    this._bytes = 8 + image.length
+    return new IcnsImage(osType, bytes, image)
   }
 
   get data(): Buffer {
@@ -129,12 +117,6 @@ export class IcnsImage {
     buffer.write(this.osType, 0, 4, 'ascii')
     buffer.writeUInt32BE(this.bytes, 4)
     return Buffer.concat([buffer, this.image])
-  }
-
-  set data(buffer) {
-    this.osType = buffer.toString('ascii', 0, 4)
-    this._bytes = buffer.readUInt32BE(4)
-    this._image = buffer.slice(8, this.bytes)
   }
 
   private static readPNG(buffer: Buffer): PNG | undefined {

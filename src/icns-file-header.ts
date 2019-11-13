@@ -1,16 +1,16 @@
 export class IcnsFileHeader {
-  identifier: string
-  bytes: number
+  readonly identifier: 'icns'
+  readonly bytes: number
 
-  constructor(identifier = 'icns', bytes = 8) {
+  constructor(identifier: 'icns' = 'icns', bytes = 8) {
     this.identifier = identifier
     this.bytes = bytes
   }
 
   static from(buffer: Buffer): IcnsFileHeader {
-    const header = new IcnsFileHeader()
-    header.data = buffer
-    return header
+    const identifier = buffer.toString('ascii', 0, 4) as 'icns'
+    const bytes = buffer.readUInt32BE(4)
+    return new IcnsFileHeader(identifier, bytes)
   }
 
   get data(): Buffer {
@@ -18,10 +18,5 @@ export class IcnsFileHeader {
     buffer.write(this.identifier, 0, 4, 'ascii')
     buffer.writeUInt32BE(this.bytes, 4)
     return buffer
-  }
-
-  set data(buffer) {
-    this.identifier = buffer.toString('ascii', 0, 4)
-    this.bytes = buffer.readUInt32BE(4)
   }
 }

@@ -1,8 +1,14 @@
 import { IcnsFileHeader } from './icns-file-header'
 import { IcnsImage } from './icns-image'
+import { OSType, Format } from './types'
+import { file } from '@babel/types'
 
 export class Icns {
-  static readonly supportedIconTypes = [
+  static readonly supportedIconTypes: {
+    osType: OSType
+    size: number
+    format: Format
+  }[] = [
     { osType: 'is32', size: 16, format: 'RGB' },
     { osType: 's8mk', size: 16, format: 'MASK' },
     { osType: 'il32', size: 32, format: 'RGB' },
@@ -19,18 +25,30 @@ export class Icns {
     { osType: 'ic14', size: 512, format: 'PNG' }
   ]
 
-  fileHeader: IcnsFileHeader
+  private _fileHeader: IcnsFileHeader
   private _images: ReadonlyArray<IcnsImage>
 
-  constructor(fileHeader = new IcnsFileHeader(), images = []) {
-    this.fileHeader = fileHeader
+  constructor(fileHeader = new IcnsFileHeader(), images: IcnsImage[] = []) {
+    this._fileHeader = fileHeader
     this._images = images
   }
 
   static from(buffer: Buffer): Icns {
-    const icns = new Icns()
-    icns.data = buffer
-    return icns
+    const fileHeader = IcnsFileHeader.from(buffer)
+
+    let pos = fileHeader.data.length
+    const images = []
+    while (pos < fileHeader.bytes) {
+      const image = IcnsImage.from(buffer.slice(pos))
+      images.push(image)
+      pos += image.data.length
+    }
+
+    return new Icns(fileHeader, images)
+  }
+
+  get fileHeader(): IcnsFileHeader {
+    return this._fileHeader
   }
 
   get images(): ReadonlyArray<IcnsImage> {
@@ -40,31 +58,19 @@ export class Icns {
   set images(images: ReadonlyArray<IcnsImage>) {
     this._images = images
 
-    this.fileHeader.bytes =
-      this.fileHeader.data.length +
-      this.images.reduce((carry, image) => carry + image.bytes, 0)
+    const bytes =
+      this._fileHeader.data.length +
+      this._images.reduce((carry, image) => carry + image.bytes, 0)
+
+    this._fileHeader = new IcnsFileHeader('icns', bytes)
   }
 
   get data(): Buffer {
     const buffers = [
-      this.fileHeader.data,
-      ...this.images.map((image) => image.data)
+      this._fileHeader.data,
+      ...this._images.map((image) => image.data)
     ]
     return Buffer.concat(buffers)
-  }
-
-  set data(buffer) {
-    this.fileHeader.data = buffer
-
-    let pos = this.fileHeader.data.length
-    const images = []
-    while (pos < this.fileHeader.bytes) {
-      const image = new IcnsImage()
-      image.data = buffer.slice(pos)
-      images.push(image)
-      pos += image.data.length
-    }
-    this._images = images
   }
 
   /**
@@ -84,7 +90,7 @@ export class Icns {
     this.images = [
       ...this.images.slice(0, index),
       image,
-      ...this.images.slice(index)
+      ...this.images.slice(index + 1)
     ]
   }
 
