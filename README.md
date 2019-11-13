@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD024 -->
 # icns
 
 ![badge](https://github.com/fiahfy/icns/workflows/Node.js%20Package/badge.svg)
@@ -46,6 +47,114 @@ icns.append(image)
 
 fs.writeFileSync('icon.icns', icns.data)
 ```
+
+## API
+
+### Class: Icns
+
+#### static from(buffer)
+
+Create ICNS from the icon buffer.
+
+##### buffer
+
+Type: `Buffer`
+
+The ICNS icon buffer.
+
+#### append(image)
+
+Adds ICNS image at the end.
+
+##### image
+
+Type: `IcnsImage`
+
+The ICNS Image to append.
+
+#### insert(image, index)
+
+Inserts ICNS image at the specified position.
+
+##### image
+
+Type: `IcnsImage`
+
+The ICNS Image to insert.
+
+##### index
+
+Type: `number`
+
+The position at which to insert the ICNS Image.
+
+#### remove(index)
+
+Removes ICNS image at the specified position.
+
+##### index
+
+Type: `number`
+
+The position of the ICNS Image to remove.
+
+#### fileHeader
+
+Type: `IcnsFileHeader`
+
+Return the file header on the ICNS.
+
+#### images
+
+Type: `IcnsImage[]`
+
+Return the ICNS images on the ICNS.
+
+#### data
+
+Type: `Buffer`
+
+Return the ICNS buffer.
+
+### Class: IcnsImage
+
+#### static from(buffer)
+
+Create ICNS image from the buffer.
+
+##### buffer
+
+Type: `Buffer`
+
+The ICNS image buffer.
+
+#### static fromPNG(buffer, osType)
+
+Create ICNS Image from the PNG image buffer.
+
+##### buffer
+
+Type: `Buffer`
+
+The PNG image buffer.
+
+##### osType
+
+Type: `OSType`
+
+The icon OSType.
+
+### Class: IcnsFileHeader
+
+#### static from(buffer)
+
+Create ICNS file header from the buffer.
+
+##### buffer
+
+Type: `Buffer`
+
+The ICNS file header buffer.
 
 ## Specifications
 

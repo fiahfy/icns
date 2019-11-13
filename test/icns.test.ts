@@ -13,7 +13,7 @@ describe('Icns', () => {
 
   describe('from', () => {
     test('should work', () => {
-      const buffer = fs.readFileSync('./test/sample.icns')
+      const buffer = fs.readFileSync('./test/icon.icns')
       const icns = Icns.from(buffer)
       expect(icns.images.length).toBe(10)
     })
