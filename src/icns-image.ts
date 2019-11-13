@@ -2,24 +2,78 @@ import { PNG } from 'pngjs'
 import { encode } from '@fiahfy/packbits'
 import { Icns } from './icns'
 
+class Bitmap {
+  readonly png: PNG
+
+  constructor(png: PNG) {
+    this.png = png
+  }
+
+  format(format: string): Buffer | undefined {
+    switch (format) {
+      case 'MASK':
+        return this.mask
+      case 'RGB':
+        return this.rgb
+      case 'ARGB':
+        return this.argb
+      default:
+        return undefined
+    }
+  }
+
+  get mask(): Buffer {
+    return this.getChannel(3)
+  }
+
+  get rgb(): Buffer {
+    return Buffer.concat([
+      encode(this.getChannel(0), { format: 'icns' }),
+      encode(this.getChannel(1), { format: 'icns' }),
+      encode(this.getChannel(2), { format: 'icns' })
+    ])
+  }
+
+  get argb(): Buffer {
+    const header = Buffer.alloc(4)
+    header.write('ARGB', 0, 4, 'ascii')
+
+    return Buffer.concat([
+      header,
+      encode(this.getChannel(3), { format: 'icns' }),
+      encode(this.getChannel(0), { format: 'icns' }),
+      encode(this.getChannel(1), { format: 'icns' }),
+      encode(this.getChannel(2), { format: 'icns' })
+    ])
+  }
+
+  private getChannel(index: number): Buffer {
+    const data = []
+    for (let i = 0; i < this.png.data.length; i += 4) {
+      data.push(this.png.data.slice(index + i, index + i + 1))
+    }
+    return Buffer.concat(data)
+  }
+}
+
 export class IcnsImage {
   osType: string
-  bytes: number
+  private _bytes: number
   private _image: Buffer
 
   constructor(osType = '', bytes = 8, image = Buffer.alloc(0)) {
     this.osType = osType
-    this.bytes = bytes
+    this._bytes = bytes
     this._image = image
   }
 
-  static create(buffer: Buffer): IcnsImage {
+  static from(buffer: Buffer): IcnsImage {
     const image = new IcnsImage()
     image.data = buffer
     return image
   }
 
-  static createFromPNG(buffer: Buffer, osType: string): IcnsImage {
+  static fromPNG(buffer: Buffer, osType: string): IcnsImage {
     const iconType = Icns.supportedIconTypes.find(
       (iconType) => iconType.osType === osType
     )
@@ -29,7 +83,7 @@ export class IcnsImage {
 
     const png = IcnsImage.readPNG(buffer)
     if (!png) {
-      throw new TypeError('Image must be png format')
+      throw new TypeError('Image must be PNG format')
     }
 
     const width = png.width
@@ -43,9 +97,21 @@ export class IcnsImage {
       )
     }
 
+    const image =
+      iconType.format === 'png'
+        ? buffer
+        : new Bitmap(png).format(iconType.format)
+    if (!image) {
+      throw new TypeError(`Invalid format '${iconType.format}'`)
+    }
+
     const icnsImage = new IcnsImage(osType)
-    icnsImage.image = IcnsImage.getImage(png, iconType.format) || buffer
+    icnsImage.image = image
     return icnsImage
+  }
+
+  get bytes(): number {
+    return this._bytes
   }
 
   get image(): Buffer {
@@ -55,7 +121,7 @@ export class IcnsImage {
   set image(image) {
     this._image = image
 
-    this.bytes = 8 + image.length
+    this._bytes = 8 + image.length
   }
 
   get data(): Buffer {
@@ -67,8 +133,8 @@ export class IcnsImage {
 
   set data(buffer) {
     this.osType = buffer.toString('ascii', 0, 4)
-    this.bytes = buffer.readUInt32BE(4)
-    this.image = buffer.slice(8, this.bytes)
+    this._bytes = buffer.readUInt32BE(4)
+    this._image = buffer.slice(8, this.bytes)
   }
 
   private static readPNG(buffer: Buffer): PNG | undefined {
@@ -77,52 +143,5 @@ export class IcnsImage {
     } catch (e) {
       return undefined
     }
-  }
-
-  private static getImage(png: PNG, format: string): Buffer | undefined {
-    switch (format) {
-      case 'MASK':
-        return IcnsImage.getMask(png)
-      case 'RGB':
-        return IcnsImage.getRGB(png)
-      case 'ARGB':
-        return IcnsImage.getARGB(png)
-      case 'PNG':
-      default:
-        return undefined
-    }
-  }
-
-  private static getMask(png: PNG): Buffer {
-    return IcnsImage.getChannel(png, 3)
-  }
-
-  private static getRGB(png: PNG): Buffer {
-    return Buffer.concat([
-      encode(IcnsImage.getChannel(png, 0), { format: 'icns' }),
-      encode(IcnsImage.getChannel(png, 1), { format: 'icns' }),
-      encode(IcnsImage.getChannel(png, 2), { format: 'icns' })
-    ])
-  }
-
-  private static getARGB(png: PNG): Buffer {
-    const header = Buffer.alloc(4)
-    header.write('ARGB', 0, 4, 'ascii')
-
-    return Buffer.concat([
-      header,
-      encode(IcnsImage.getChannel(png, 3), { format: 'icns' }),
-      encode(IcnsImage.getChannel(png, 0), { format: 'icns' }),
-      encode(IcnsImage.getChannel(png, 1), { format: 'icns' }),
-      encode(IcnsImage.getChannel(png, 2), { format: 'icns' })
-    ])
-  }
-
-  private static getChannel(png: PNG, index: number): Buffer {
-    const data = []
-    for (let i = 0; i < png.data.length; i += 4) {
-      data.push(png.data.slice(index + i, index + i + 1))
-    }
-    return Buffer.concat(data)
   }
 }

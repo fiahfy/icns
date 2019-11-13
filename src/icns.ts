@@ -20,24 +20,24 @@ export class Icns {
   ]
 
   fileHeader: IcnsFileHeader
-  private _images: IcnsImage[]
+  private _images: ReadonlyArray<IcnsImage>
 
   constructor(fileHeader = new IcnsFileHeader(), images = []) {
     this.fileHeader = fileHeader
     this._images = images
   }
 
-  static create(buffer: Buffer): Icns {
+  static from(buffer: Buffer): Icns {
     const icns = new Icns()
     icns.data = buffer
     return icns
   }
 
-  get images(): IcnsImage[] {
+  get images(): ReadonlyArray<IcnsImage> {
     return this._images
   }
 
-  set images(images: IcnsImage[]) {
+  set images(images: ReadonlyArray<IcnsImage>) {
     this._images = images
 
     this.fileHeader.bytes =
@@ -64,14 +64,14 @@ export class Icns {
       images.push(image)
       pos += image.data.length
     }
-    this.images = images
+    this._images = images
   }
 
   /**
    * Adds ICNS image at the end.
    * @param image The ICNS Image to append.
    */
-  appendImage(image: IcnsImage): void {
+  append(image: IcnsImage): void {
     this.images = [...this.images, image]
   }
 
@@ -80,7 +80,7 @@ export class Icns {
    * @param image The ICNS Image to insert.
    * @param index The position at which to insert the ICNS Image.
    */
-  insertImage(image: IcnsImage, index: number): void {
+  insert(image: IcnsImage, index: number): void {
     this.images = [
       ...this.images.slice(0, index),
       image,
@@ -92,20 +92,10 @@ export class Icns {
    * Removes ICNS image at the specified position.
    * @param index The position of the ICNS Image to remove.
    */
-  removeImage(index: number): void {
+  remove(index: number): void {
     this.images = [
       ...this.images.slice(0, index),
       ...this.images.slice(index + 1)
     ]
-  }
-
-  appendPNG(buffer: Buffer, osType: string): void {
-    const image = IcnsImage.createFromPNG(buffer, osType)
-    this.appendImage(image)
-  }
-
-  insertPNG(buffer: Buffer, osType: string, index: number): void {
-    const image = IcnsImage.createFromPNG(buffer, osType)
-    this.insertImage(image, index)
   }
 }

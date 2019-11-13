@@ -7,6 +7,12 @@ export class IcnsFileHeader {
     this.bytes = bytes
   }
 
+  static from(buffer: Buffer): IcnsFileHeader {
+    const header = new IcnsFileHeader()
+    header.data = buffer
+    return header
+  }
+
   get data(): Buffer {
     const buffer = Buffer.alloc(8)
     buffer.write(this.identifier, 0, 4, 'ascii')
