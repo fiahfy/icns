@@ -7,20 +7,21 @@ describe('IcnsImage', () => {
       const image = new IcnsImage()
       expect(image.osType).toBe('')
       expect(image.bytes).toBe(8)
-      expect(image.image).toEqual(Buffer.alloc(0))
+      expect(image.image.length).toBe(0)
     })
   })
 
   describe('from', () => {
     test('should work', () => {
-      const buffer = Buffer.alloc(8)
+      const buffer = Buffer.alloc(18)
       buffer.write('ic04', 0, 4, 'ascii')
-      buffer.writeUInt32BE(8, 4)
+      buffer.writeUInt32BE(18, 4)
+      buffer.write('0123456789', 8, 10, 'ascii')
 
       const image = IcnsImage.from(buffer)
       expect(image.osType).toBe('ic04')
-      expect(image.bytes).toBe(8)
-      expect(image.image).toEqual(Buffer.alloc(0))
+      expect(image.bytes).toBe(18)
+      expect(image.image.length).toBe(10)
     })
   })
 

@@ -23,22 +23,35 @@ describe('Icns', () => {
     test('should work', () => {
       const icns = new Icns()
       const buffer = fs.readFileSync('./test/16x16.png')
-      let image: IcnsImage
+      const firstBytes = icns.fileHeader.bytes
+      let image: IcnsImage, prevBytes: number
 
+      prevBytes = icns.fileHeader.bytes
       image = IcnsImage.fromPNG(buffer, 'ic04')
       icns.images = [...icns.images, image]
       expect(icns.images.length).toBe(1)
+      expect(icns.fileHeader.bytes).toBe(prevBytes + image.data.length)
+      expect(icns.fileHeader.bytes).toBe(icns.data.byteLength)
 
+      prevBytes = icns.fileHeader.bytes
       image = IcnsImage.fromPNG(buffer, 'is32')
       icns.images = [...icns.images, image]
       expect(icns.images.length).toBe(2)
+      expect(icns.fileHeader.bytes).toBe(prevBytes + image.data.length)
+      expect(icns.fileHeader.bytes).toBe(icns.data.byteLength)
 
+      prevBytes = icns.fileHeader.bytes
       image = IcnsImage.fromPNG(buffer, 's8mk')
       icns.images = [...icns.images, image]
       expect(icns.images.length).toBe(3)
+      expect(icns.fileHeader.bytes).toBe(prevBytes + image.data.length)
+      expect(icns.fileHeader.bytes).toBe(icns.data.byteLength)
 
+      prevBytes = icns.fileHeader.bytes
       icns.images = []
       expect(icns.images.length).toBe(0)
+      expect(icns.fileHeader.bytes).toBe(firstBytes)
+      expect(icns.fileHeader.bytes).toBe(icns.data.byteLength)
     })
   })
 
