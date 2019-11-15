@@ -39,6 +39,5 @@ export type OSType =
   | 'icnV'
   | 'name'
   | 'info'
-  | ''
 
 export type Format = 'MASK' | 'RGB' | 'ARGB' | 'PNG'

@@ -72,7 +72,7 @@ export class IcnsImage {
   readonly bytes: number
   readonly image: Buffer
 
-  constructor(osType: OSType = '', bytes = 8, image = Buffer.alloc(0)) {
+  constructor(osType: OSType = 'ic10', bytes = 8, image = Buffer.alloc(0)) {
     this.osType = osType
     this.bytes = bytes
     this.image = image
