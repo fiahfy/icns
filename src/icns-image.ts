@@ -3,15 +3,19 @@ import { encode } from '@fiahfy/packbits'
 import { Icns } from './icns'
 import { OSType, Format } from './types'
 
-export class Bitmap {
+export class BitmapBuilder {
   readonly png: PNG
+  readonly osType: OSType
+  readonly format: Format
 
-  constructor(png: PNG) {
+  constructor(png: PNG, osType: OSType, format: Format) {
     this.png = png
+    this.osType = osType
+    this.format = format
   }
 
-  format(format: Format): Buffer | undefined {
-    switch (format) {
+  build(): Buffer | undefined {
+    switch (this.format) {
       case 'MASK':
         return this.mask
       case 'RGB':
@@ -28,7 +32,13 @@ export class Bitmap {
   }
 
   private get rgb(): Buffer {
+    // the "it32" data seams to be offset by 4 bytes
+    // @see https://gist.github.com/raweden/1065894#file-icnsencoder-as-L63
+    const offset = this.osType === 'it32' ? 4 : 0
+    const header = Buffer.alloc(offset)
+
     return Buffer.concat([
+      header,
       encode(this.getChannel(0), { format: 'icns' }),
       encode(this.getChannel(1), { format: 'icns' }),
       encode(this.getChannel(2), { format: 'icns' })
@@ -111,7 +121,7 @@ export class IcnsImage {
     const image =
       iconType.format === 'PNG'
         ? buffer
-        : new Bitmap(png).format(iconType.format)
+        : new BitmapBuilder(png, osType, iconType.format).build()
     if (!image) {
       throw new TypeError(`Invalid format '${iconType.format}'`)
     }
