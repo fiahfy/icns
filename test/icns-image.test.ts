@@ -5,7 +5,7 @@ describe('IcnsImage', () => {
   describe('constructor', () => {
     it('should work', () => {
       const image = new IcnsImage()
-      expect(image.osType).toBe('')
+      expect(image.osType).toBe('ic10')
       expect(image.bytes).toBe(8)
       expect(image.image.length).toBe(0)
     })
