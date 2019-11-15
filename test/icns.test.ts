@@ -3,7 +3,7 @@ import { Icns, IcnsFileHeader, IcnsImage } from '../src'
 
 describe('Icns', () => {
   describe('constructor', () => {
-    test('should work', () => {
+    it('should work', () => {
       const icns = new Icns()
       expect(icns.fileHeader).toEqual(new IcnsFileHeader())
       expect(icns.images).toEqual([])
@@ -11,7 +11,7 @@ describe('Icns', () => {
   })
 
   describe('from', () => {
-    test('should work', () => {
+    it('should work', () => {
       const buffer = fs.readFileSync('./test/icon.icns')
       const icns = Icns.from(buffer)
       expect(icns.images.length).toBe(10)
@@ -19,7 +19,7 @@ describe('Icns', () => {
   })
 
   describe('set images', () => {
-    test('should work', () => {
+    it('should work', () => {
       const icns = new Icns()
       const buffer = fs.readFileSync('./test/16x16.png')
       const firstBytes = icns.fileHeader.bytes
@@ -55,7 +55,7 @@ describe('Icns', () => {
   })
 
   describe('append', () => {
-    test('should work', () => {
+    it('should work', () => {
       const icns = new Icns()
       const buffer = fs.readFileSync('./test/16x16.png')
       let image: IcnsImage
@@ -74,7 +74,7 @@ describe('Icns', () => {
   })
 
   describe('insert', () => {
-    test('should work', () => {
+    it('should work', () => {
       const icns = new Icns()
       const buffer = fs.readFileSync('./test/16x16.png')
       let image: IcnsImage
@@ -98,7 +98,7 @@ describe('Icns', () => {
   })
 
   describe('remove', () => {
-    test('should work', () => {
+    it('should work', () => {
       const icns = new Icns()
       const buffer = fs.readFileSync('./test/16x16.png')
 
