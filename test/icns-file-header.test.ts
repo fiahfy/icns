@@ -1,4 +1,4 @@
-import { IcnsFileHeader } from '../src/icns-file-header'
+import { IcnsFileHeader } from '../src'
 
 describe('IcnsFileHeader', () => {
   describe('constructor', () => {

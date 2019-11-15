@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { IcnsImage } from '../src/icns-image'
+import { IcnsImage } from '../src'
 
 describe('IcnsImage', () => {
   describe('constructor', () => {
