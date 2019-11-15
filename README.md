@@ -163,11 +163,18 @@ The ICNS file header buffer.
 | OSType | OS Version | Size | Description                                                           |
 | ------ | ---------- | ---- | --------------------------------------------------------------------- |
 | is32   | 8.5        | 16   | 16×16 24-bit icon                                                     |
-| s8mk   | 8.5        | 16   | 16x16 8-bit mask                                                      |
 | il32   | 8.5        | 32   | 32x32 24-bit icon                                                     |
+| ih32   | 8.5        | 48   | 48×48 24-bit icon                                                     |
+| it32   | 10.0       | 128  | 128x128 24-bit icon                                                   |
+| s8mk   | 8.5        | 16   | 16x16 8-bit mask                                                      |
 | l8mk   | 8.5        | 32   | 32×32 8-bit mask                                                      |
+| h8mk   | 8.5        | 48   | 48×48 8-bit mask                                                      |
+| t8mk   | 10.0       | 128  | 128x128 8-bit mask                                                    |
 | ic04   |            | 16   | 16x16 ARGB                                                            |
 | ic05   |            | 32   | 32x32 ARGB                                                            |
+| icp4   | 10.7       | 16   | 16x16 icon in PNG format                                              |
+| icp5   | 10.7       | 32   | 32x32 icon in PNG format                                              |
+| icp6   | 10.7       | 64   | 64x64 icon in PNG format                                              |
 | ic07   | 10.7       | 128  | 128x128 icon in PNG format                                            |
 | ic08   | 10.5       | 256  | 256×256 icon in PNG format                                            |
 | ic09   | 10.5       | 512  | 512×512 icon in PNG format                                            |
