@@ -41,7 +41,7 @@ export class BitmapBuilder {
       header,
       encode(this.getChannel(0), { format: 'icns' }),
       encode(this.getChannel(1), { format: 'icns' }),
-      encode(this.getChannel(2), { format: 'icns' })
+      encode(this.getChannel(2), { format: 'icns' }),
     ])
   }
 
@@ -54,7 +54,7 @@ export class BitmapBuilder {
       encode(this.getChannel(3), { format: 'icns' }),
       encode(this.getChannel(0), { format: 'icns' }),
       encode(this.getChannel(1), { format: 'icns' }),
-      encode(this.getChannel(2), { format: 'icns' })
+      encode(this.getChannel(2), { format: 'icns' }),
     ])
   }
 

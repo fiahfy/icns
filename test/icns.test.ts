@@ -105,7 +105,7 @@ describe('Icns', () => {
       icns.images = [
         IcnsImage.fromPNG(buffer, 'ic04'),
         IcnsImage.fromPNG(buffer, 'is32'),
-        IcnsImage.fromPNG(buffer, 's8mk')
+        IcnsImage.fromPNG(buffer, 's8mk'),
       ]
       expect(icns.images.length).toBe(3)
 

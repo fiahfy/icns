@@ -28,7 +28,7 @@ export class Icns {
     { osType: 'ic11', size: 32, format: 'PNG' },
     { osType: 'ic12', size: 64, format: 'PNG' },
     { osType: 'ic13', size: 256, format: 'PNG' },
-    { osType: 'ic14', size: 512, format: 'PNG' }
+    { osType: 'ic14', size: 512, format: 'PNG' },
   ]
 
   private _fileHeader: IcnsFileHeader
@@ -78,7 +78,7 @@ export class Icns {
   get data(): Buffer {
     const buffers = [
       this._fileHeader.data,
-      ...this._images.map((image) => image.data)
+      ...this._images.map((image) => image.data),
     ]
     return Buffer.concat(buffers)
   }
@@ -100,7 +100,7 @@ export class Icns {
     this.images = [
       ...this.images.slice(0, index),
       image,
-      ...this.images.slice(index + 1)
+      ...this.images.slice(index + 1),
     ]
   }
 
@@ -111,7 +111,7 @@ export class Icns {
   remove(index: number): void {
     this.images = [
       ...this.images.slice(0, index),
-      ...this.images.slice(index + 1)
+      ...this.images.slice(index + 1),
     ]
   }
 }
